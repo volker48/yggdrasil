@@ -1,37 +1,39 @@
 package yggdrasil
 
+const EMPTY = "**EMPTY**"
 
 type Trie struct {
-	Children map[rune]Trie
+	Children map[rune]*Trie
 	leaf bool
+	Value interface{}
 }
 
 func New() (tree *Trie) {
-	tree = &Trie{leaf: false}
-	tree.Children = make(map[byte]Trie)
+	tree = &Trie{leaf: false, Value: EMPTY}
+	tree.Children = make(map[rune]*Trie)
 	return tree
 }
 
-func (t *Trie) Find(key string) (string, bool) {
+func (t *Trie) Find(key string) (interface{}, bool) {
 	for _, c := range key {
 		_, ok := t.Children[c]
 		if !ok {
-			return "", false
+			return nil, false
 		} else {
 			t = t.Children[c]
 		}
 	}
-	return true
+	return t.Value, true
 }
 
 
-func (t *Trie) Insert(value string) {
-	for _, c := range value {
+func (t *Trie) Insert(key string, value interface{}) {
+	for _, c := range key {
 		_, ok := t.Children[c]
 		if !ok {
-			children := make(map[byte]Trie)
-			t.Children[c] = &Trie{Children: &Trie{Children: children}}
+			t.Children[c] = New()
 		}
+		t, _ = t.Children[c]
 	}
-	t.leaf = true
+	t.Value = value
 }
