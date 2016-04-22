@@ -27,17 +27,25 @@ func (t *Trie) Find(key string) (interface{}, bool) {
 	return t.Value, true
 }
 
+func DFS(node *Trie) {
+	//visit node
+	for _, child := range node.Children {
+		DFS(child)
+	}
+}
+// root -> t -> e -> a
+//                -> n
+//		     -> t -> h
 func GetPrefixesRec(node *Trie, prefix string) []string {
-	sub := func(node *Trie, prefix string, matches []string) []string{
-		for _, character := range prefix {
-			child, found := node.Children[character]
-			if !found{
-				return matches
-			}
-			
+	for _, c := range prefix {
+		child, found := node[c]
+		if !found {
+			return
 		}
 	}
-	return  sub(node, prefix, make([]string, 0))
+	sub := func(node *Trie, prefix, currentWord string, matches []string) []string {
+	}
+	return  sub(node, prefix, "", make([]string, 0))
 }
 
 func (t *Trie) GetPrefixes(prefix string) (matches []string) {
