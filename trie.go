@@ -4,13 +4,13 @@ const EMPTY = "**EMPTY**"
 
 type Trie struct {
 	Children map[rune]*Trie
-	leaf bool
-	c rune
-	Value interface{}
+	isWord   bool
+	c        rune
+	Value    interface{}
 }
 
 func New() (tree *Trie) {
-	tree = &Trie{leaf: false, Value: EMPTY}
+	tree = &Trie{isWord: false, Value: EMPTY}
 	tree.Children = make(map[rune]*Trie)
 	return tree
 }
@@ -25,6 +25,19 @@ func (t *Trie) Find(key string) (interface{}, bool) {
 		}
 	}
 	return t.Value, true
+}
+
+func GetPrefixesRec(node *Trie, prefix string) []string {
+	sub := func(node *Trie, prefix string, matches []string) []string{
+		for _, character := range prefix {
+			child, found := node.Children[character]
+			if !found{
+				return matches
+			}
+			
+		}
+	}
+	return  sub(node, prefix, make([]string, 0))
 }
 
 func (t *Trie) GetPrefixes(prefix string) (matches []string) {
@@ -44,7 +57,7 @@ func (t *Trie) GetPrefixes(prefix string) (matches []string) {
 			queue = append(queue, child)
 		}
 		suffix += string(t.c)
-		if t.leaf {
+		if t.isWord {
 			matches = append(matches, suffix)
 			suffix = suffix[:len(suffix) - 1]
 		}
@@ -63,6 +76,6 @@ func (t *Trie) Insert(key string, value interface{}) {
 		t, _ = t.Children[c]
 	}
 	t.Value = value
-	t.leaf = true
+	t.isWord = true
 }
 
