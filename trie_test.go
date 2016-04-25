@@ -1,9 +1,9 @@
 package yggdrasil
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
 	"log"
+	"testing"
 )
 
 func TestInsert(t *testing.T) {
@@ -20,8 +20,27 @@ func TestInsert(t *testing.T) {
 	assert.Equal(t, 42, v, "Incorrect value")
 }
 
+func TestInsertLongShort(t *testing.T) {
+	trie := New()
+	trie.Insert("tenth", 1)
+	trie.Insert("tea", 2)
+	trie.Insert("ten", 3)
+	tNode, ok := trie.Children['t']
+	assert.True(t, ok)
+	eNode, ok := tNode.Children['e']
+	assert.True(t, ok)
+	nNode, ok := eNode.Children['n']
+	assert.True(t, ok)
+	otherTNode, ok := nNode.Children['t']
+	assert.True(t, ok)
+	_, ok = otherTNode.Children['h']
+	assert.True(t, ok)
+
+}
+
 func TestFindPrefixes(t *testing.T) {
 	trie := New()
+	trie.Insert("tenth", 4)
 	trie.Insert("tea", 1)
 	trie.Insert("ted", 2)
 	trie.Insert("ten", 3)
@@ -29,7 +48,7 @@ func TestFindPrefixes(t *testing.T) {
 	trie.Insert("to", 5)
 	trie.Insert("teddie", 6)
 	trie.Insert("teddy", 7)
-	result := trie.GetPrefixes("t")
-	assert.Equal(t, len(result), 6)
+	result := GetPrefixes(trie, "te")
+	assert.Equal(t, 6, len(result))
 	log.Println(result)
 }

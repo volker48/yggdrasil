@@ -1,5 +1,9 @@
 package yggdrasil
 
+import (
+	"fmt"
+)
+
 const EMPTY = "**EMPTY**"
 
 type Trie struct {
@@ -7,6 +11,10 @@ type Trie struct {
 	isWord   bool
 	c        rune
 	Value    interface{}
+}
+
+func (t *Trie) String() string {
+	return fmt.Sprintf("Trie{c: %q, Value: %q, isWord: %q}", t.c, t.Value, t.isWord)
 }
 
 func New() (tree *Trie) {
@@ -27,52 +35,30 @@ func (t *Trie) Find(key string) (interface{}, bool) {
 	return t.Value, true
 }
 
-func DFS(node *Trie) {
-	//visit node
-	for _, child := range node.Children {
-		DFS(child)
+func sub(node *Trie, prefix, currentSuffix string) []string {
+	matches := make([]string, 0)
+	for c, child := range node.Children {
+		if child.isWord {
+			word := prefix+currentSuffix+string(c)
+			matches = append(matches, word)
+		}
+		subMatches := sub(child, prefix, currentSuffix+string(c))
+		matches = append(matches, subMatches...)
 	}
+	return  matches
 }
-// root -> t -> e -> a
-//                -> n
-//		     -> t -> h
-func GetPrefixesRec(node *Trie, prefix string) []string {
+
+func GetPrefixes(node *Trie, prefix string) []string {
+	matches := make([]string, 0)
 	for _, c := range prefix {
-		child, found := node[c]
+		child, found := node.Children[c]
 		if !found {
-			return
+			return matches
 		}
+		node = child
 	}
-	sub := func(node *Trie, prefix, currentWord string, matches []string) []string {
-	}
-	return  sub(node, prefix, "", make([]string, 0))
+	return sub(node, prefix, "")
 }
-
-func (t *Trie) GetPrefixes(prefix string) (matches []string) {
-	for _, c := range prefix {
-		child, ok := t.Children[c]
-		if !ok {
-			return
-		}
-
-		t = child
-	}
-	queue := []*Trie{t}
-	suffix := ""
-	for len(queue) > 0 {
-		t, queue = queue[len(queue)-1], queue[:len(queue)-1]
-		for _, child := range t.Children {
-			queue = append(queue, child)
-		}
-		suffix += string(t.c)
-		if t.isWord {
-			matches = append(matches, suffix)
-			suffix = suffix[:len(suffix) - 1]
-		}
-	}
-	return
-}
-
 
 func (t *Trie) Insert(key string, value interface{}) {
 	for _, c := range key {
@@ -86,4 +72,3 @@ func (t *Trie) Insert(key string, value interface{}) {
 	t.Value = value
 	t.isWord = true
 }
-
